@@ -1,7 +1,12 @@
 package used_cars;
 
 message Car {
-	required string mark = 1;
-	required string model = 2;
-	required uint32 year = 3;		
+    required string id = 1;
+	required string mark = 2;
+	required string model = 3;
+	required uint32 year = 4;
+
+	optional string body = 5;
+	optional uint32 power = 6;
+	optional uint32 mileage = 7;
 }

@@ -26,6 +26,7 @@ def create_car():
     car.mark = mark
     car.model = model
     car.year = year
+    car.id = uuid.uuid1().hex
 
     # for now let's throw bytes
     buf = car.SerializeToString()

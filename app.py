@@ -46,12 +46,6 @@ def get_car(id):
     car.ParseFromString(buf)
     # let's print something
     return jsonify([car.id, car.mark, car.model, car.year])
-    car.id = uuid.uuid1().hex
-
-    # for now let's throw bytes
-    buf = car.SerializeToString()
-
-    return buf
 
 
 @app.route("/car/<string:id>/price/<string:new_price>", methods=["PUT"])

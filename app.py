@@ -11,8 +11,10 @@ import redis
 # create the Flask application
 app = Flask(__name__)
 
+
 # add redis as a storage
 r = redis.Redis(host='127.0.0.1', port=6379)
+
 
 @app.route("/cars", methods=["GET"])
 def list_cars():
@@ -44,6 +46,12 @@ def get_car(id):
     car.ParseFromString(buf)
     # let's print something
     return jsonify([car.id, car.mark, car.model, car.year])
+    car.id = uuid.uuid1().hex
+
+    # for now let's throw bytes
+    buf = car.SerializeToString()
+
+    return buf
 
 
 @app.route("/car/<string:id>/price/<string:new_price>", methods=["PUT"])

@@ -3,6 +3,7 @@
 from flask import Flask
 from flask import request
 from flask import jsonify
+from flask import url_for, redirect
 import Car_pb2
 import uuid
 import redis
@@ -18,7 +19,8 @@ r = redis.Redis(host='127.0.0.1', port=6379)
 
 @app.route("/cars", methods=["GET"])
 def list_cars():
-    return "Cars list will appear here"
+    # really bad idea in production, but ok for now
+    return jsonify(r.keys(pattern='*'))
 
 
 @app.route("/car/new", methods=["POST"])
@@ -31,26 +33,29 @@ def create_car():
     car.mark = mark
     car.model = model
     car.year = year
-    id = uuid.uuid1().hex
-    car.id = id
+    car_id = uuid.uuid1().hex
+    car.id = car_id
 
     buf = car.SerializeToString()
-    r.set(id, buf)
-    return id
+    r.set(car_id, buf)
+    return redirect(url_for("get_car", car_id=car_id))
 
 
-@app.route("/car/<string:id>", methods=["GET"])
-def get_car(id):
-    car = Car_pb2.Car()
-    buf = r.get(id)
-    car.ParseFromString(buf)
+@app.route("/car/<string:car_id>", methods=["GET"])
+def get_car(car_id):
+    car = fetch_car(car_id)
     # let's print something
     return jsonify([car.id, car.mark, car.model, car.year])
 
 
-@app.route("/car/<string:id>/price/<string:new_price>", methods=["PUT"])
-def update_car_price(id, new_price):
-    return "New price is" + new_price
+def fetch_car(car_id):
+    car = Car_pb2.Car()
+    buf = r.get(car_id)
+    if buf is None:
+        return None
+
+    car.ParseFromString(buf)
+    return car
 
 
 if __name__ == "__main__":
